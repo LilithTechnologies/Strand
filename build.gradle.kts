@@ -37,8 +37,7 @@ dependencies {
 
     runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
-    implementation("gg.sona:eos:1.0.5")
-    include("gg.sona:eos:1.0.5")
+    implementation(include("gg.sona:eos:1.1.0")!!)
 }
 
 tasks.processResources {
@@ -68,6 +67,12 @@ tasks.withType<KotlinCompile>().configureEach {
 
 tasks.jar {
     from("LICENSE.md") {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+    from("NOTICE.md") {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+    from("PRIVACY_POLICY.md") {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
 }

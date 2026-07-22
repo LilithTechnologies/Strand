@@ -620,7 +620,7 @@ state the exclusion of warranty; and each file should have at least
 the “copyright” line and a pointer to where the full notice is found.
 
     Strand - Open your Minecraft world to anyone, anywhere.
-    Copyright (C) 2026  Lunasa
+    Copyright (C) 2026 Lilith Technologies LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by

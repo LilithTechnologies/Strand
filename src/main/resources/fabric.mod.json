@@ -9,18 +9,18 @@
 
   "authors": [
     {
-      "name": "Lunasa",
+      "name": "Lilith",
       "contact": {
-        "homepage": "https://github.com/LunasaVT",
-        "email": "prismriver@lunasa.dev"
+        "homepage": "https://lilith.re/",
+        "email": "hello@lilith.re"
       }
     }
   ],
 
   "contact": {
-    "issues": "https://github.com/LunasaVT/Strand/issues",
-    "sources": "https://github.com/LunasaVT/Strand",
-    "homepage": "https://github.com/LunasaVT/Strand"
+    "issues": "https://github.com/LilithTechnologies/Strand/issues",
+    "sources": "https://github.com/LilithTechnologies/Strand",
+    "homepage": "https://github.com/LilithTechnologies/Strand"
   },
 
   "license": "AGPL-3.0",
@@ -33,7 +33,7 @@
   ],
   "entrypoints": {
     "client": [
-      "dev.lunasa.strand.client.StrandClient"
+      "re.lilith.strand.client.StrandClient"
     ]
   },
 

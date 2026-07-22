@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.lunasa.strand.mixin",
+  "package": "re.lilith.strand.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
     "IntegratedServerMixin"

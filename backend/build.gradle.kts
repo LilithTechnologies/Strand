@@ -5,7 +5,7 @@ plugins {
     application
 }
 
-group = "dev.lunasa.strand"
+group = "re.lilith.strand"
 version = "0.0.1"
 
 repositories {
@@ -38,7 +38,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("dev.lunasa.strand.backend.ApplicationKt")
+    mainClass.set("re.lilith.strand.backend.ApplicationKt")
 }
 
 
