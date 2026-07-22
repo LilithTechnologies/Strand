@@ -73,7 +73,7 @@ tasks.jar {
 }
 
 license {
-    rule(file("codeformat/HEADER"))
+    rule(file("./codeformat/HEADER"))
 
     include("**/*.java")
     include("**/*.kt")
