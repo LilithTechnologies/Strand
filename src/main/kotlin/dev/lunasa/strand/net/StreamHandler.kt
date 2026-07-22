@@ -19,6 +19,6 @@
 package dev.lunasa.strand.net
 
 interface StreamHandler {
-    fun onData(bytes: ByteArray)
+    fun onData(data: ByteArray, off: Int, len: Int)
     fun onClose()
 }

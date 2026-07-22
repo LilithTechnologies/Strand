@@ -30,9 +30,11 @@ class TcpP2PStream(
     private val tcp: Socket,
 ) : StreamHandler {
 
-    private val inbound = LinkedBlockingQueue<ByteArray>()
+    private val inbound = LinkedBlockingQueue<Chunk>()
     private val closed = AtomicBoolean(false)
-    private val poison = ByteArray(0)
+    private val poison = Chunk(ByteArray(0), 0, 0)
+
+    private class Chunk(val data: ByteArray, val off: Int, val len: Int)
 
     fun start() {
         tcp.tcpNoDelay = true
@@ -41,13 +43,13 @@ class TcpP2PStream(
     }
 
     private fun readLoop() {
-        val buffer = ByteArray(1169)
+        val buffer = ByteArray(P2PHub.MAX_PAYLOAD)
         try {
             val input = tcp.getInputStream()
             while (!closed.get()) {
                 val read = input.read(buffer)
                 if (read < 0) break
-                if (read > 0) P2PHub.send(remote, socketName, channel, buffer.copyOf(read))
+                if (read > 0) P2PHub.send(remote, socketName, channel, buffer, read)
             }
         } catch (_: Exception) {
         } finally {
@@ -61,7 +63,7 @@ class TcpP2PStream(
             while (true) {
                 val chunk = inbound.take()
                 if (chunk === poison) break
-                output.write(chunk)
+                output.write(chunk.data, chunk.off, chunk.len)
                 output.flush()
             }
         } catch (_: Exception) {
@@ -70,8 +72,8 @@ class TcpP2PStream(
         }
     }
 
-    override fun onData(bytes: ByteArray) {
-        if (!closed.get()) inbound.add(bytes)
+    override fun onData(data: ByteArray, off: Int, len: Int) {
+        if (!closed.get()) inbound.add(Chunk(data, off, len))
     }
 
     override fun onClose() {

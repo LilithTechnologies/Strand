@@ -37,8 +37,8 @@ dependencies {
 
     runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
-    implementation("gg.sona:eos:1.0.4")
-    include("gg.sona:eos:1.0.4")
+    implementation("gg.sona:eos:1.0.5")
+    include("gg.sona:eos:1.0.5")
 }
 
 tasks.processResources {

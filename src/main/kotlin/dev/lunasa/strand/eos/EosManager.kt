@@ -96,7 +96,7 @@ object EosManager {
             return
         }
         EosLogging.setCallback { msg -> onLog(msg.category, msg.level, msg.message) }
-        EosLogging.setLogLevel(EosLogCategory.AllCategories, EosLogLevel.Warning)
+        EosLogging.setLogLevel(EosLogCategory.AllCategories, EosLogLevel.VeryVerbose)
 
         current = createPlatform() ?: run {
             running = false
@@ -176,6 +176,14 @@ object EosManager {
             }
         }
         return future
+    }
+
+    fun post(block: () -> Unit) {
+        if (isOnTickThread) {
+            runCatching(block).onFailure { logger.warn("A posted EOS call failed", it) }
+        } else {
+            pendingCalls.add(block)
+        }
     }
 
     fun addFrameHook(hook: () -> Unit) {
