@@ -1,6 +1,8 @@
 # Strand
 > Open your Minecraft world to anyone, anywhere.
 
+**Note: Strand is an open-alpha mod. Bugs are expected. Please report them to our [issue tracker](https://github.com/LilithTechnologies/Strand/issues)!**
+
 ## What does it do?
 
 **Strand opens your Minecraft world to anyone, anywhere.**
