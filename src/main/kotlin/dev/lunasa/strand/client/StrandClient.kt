@@ -53,6 +53,6 @@ class StrandClient : ClientModInitializer {
             EosManager.shutdown()
         }
 
-        logger.info("Crossway client initialized")
+        logger.info("Strand client initialized")
     }
 }

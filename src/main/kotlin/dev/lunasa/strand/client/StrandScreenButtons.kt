@@ -31,7 +31,7 @@ object StrandScreenButtons {
     fun register() {
         ScreenEvents.AFTER_INIT.register { client, screen, scaledWidth, _ ->
             if (screen is TitleScreen || screen is JoinMultiplayerScreen || screen is PauseScreen) {
-                val button = Button.builder(Component.literal("Crossway")) { _ ->
+                val button = Button.builder(Component.literal("Strand")) { _ ->
                     client.setScreenAndShow(StrandHubScreen(screen))
                 }.bounds(scaledWidth - 104, 4, 100, 20).build()
                 Screens.getWidgets(screen).add(button)

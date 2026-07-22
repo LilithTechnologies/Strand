@@ -25,7 +25,7 @@ object Seeder {
 
     private val logger = LoggerFactory.getLogger("strand/seed")
     private val DEMO_UUID = UUID.fromString("00000000-0000-0000-0000-0000000000de")
-    private const val DEMO_NAME = "CrosswayDemo"
+    private const val DEMO_NAME = "StrandDemo"
     private const val DEMO_PUID = "0002000000000000000000000000demo"
 
     fun run(config: Config, services: AppServices) {

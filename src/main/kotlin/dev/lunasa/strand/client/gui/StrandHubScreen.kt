@@ -24,14 +24,14 @@ import net.minecraft.client.gui.components.toasts.SystemToast
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 
-class StrandHubScreen(parent: Screen?) : StrandScreen(Component.literal("Crossway"), parent) {
+class StrandHubScreen(parent: Screen?) : StrandScreen(Component.literal("Strand"), parent) {
 
     override fun build() {
         val c = controller
         val cx = width / 2
         var y = height / 5
 
-        label(cx, y, Component.literal("Crossway").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD))
+        label(cx, y, Component.literal("Strand").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD))
         y += 14
 
         label(cx, y, connectionLine())
@@ -104,7 +104,7 @@ class StrandHubScreen(parent: Screen?) : StrandScreen(Component.literal("Crosswa
             SystemToast.add(
                 minecraft.gui.toastManager(),
                 SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
-                Component.literal("Crossway"),
+                Component.literal("Strand"),
                 Component.literal("Invite code copied"),
             )
         }

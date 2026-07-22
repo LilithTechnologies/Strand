@@ -103,16 +103,16 @@ class SessionController(
                     lastError = null
                     P2PHub.install()
                     startPoller()
-                    hooks.notify("Connected to Crossway as ${result.me.username}.")
+                    hooks.notify("Connected to Strand as ${result.me.username}.")
                     future.complete(result)
                     loginFuture = null
                     changed()
                 }
                 .onFailure { error ->
-                    logger.error("Crossway login failed", error)
+                    logger.error("Strand login failed", error)
                     connState = ConnState.Failed
                     lastError = error.message
-                    hooks.notify("Crossway login failed: ${error.message}")
+                    hooks.notify("Strand login failed: ${error.message}")
                     future.completeExceptionally(error)
                     loginFuture = null
                     changed()
@@ -139,8 +139,8 @@ class SessionController(
         if (newOnes.isNotEmpty()) {
             for (invite in newOnes) {
                 val name = invite.hostName.ifBlank { "A player" }
-                hooks.notify("$name invited you to their world. Open Crossway to accept.")
-                hooks.toast("Crossway invite", "$name invited you to play")
+                hooks.notify("$name invited you to their world. Open Strand to accept.")
+                hooks.toast("Strand invite", "$name invited you to play")
             }
             changed()
         } else if (fresh.size != known.size) {
@@ -151,7 +151,7 @@ class SessionController(
     fun host() {
         val port = hooks.lanPort()
         if (port == null) {
-            hooks.notify("Open your world to LAN first, then host on Crossway.")
+            hooks.notify("Open your world to LAN first, then host on Strand.")
             return
         }
         ensureLogin().whenComplete { login, error ->
@@ -164,7 +164,7 @@ class SessionController(
                         bridge.start()
                         hostState = HostState(created.sessionId, created.inviteCode, bridge)
                         val code = if (config.hideCodeInChat) "(hidden)" else created.inviteCode
-                        hooks.notify("Your world is live on Crossway. Invite code: $code")
+                        hooks.notify("Your world is live on Strand. Invite code: $code")
                         changed()
                     }
                     .onFailure { hooks.notify("Could not start hosting: ${it.message}") }
@@ -179,7 +179,7 @@ class SessionController(
         session?.let { login ->
             executor.execute { runCatching { backend.closeSession(login.sessionToken, state.sessionId) } }
         }
-        hooks.notify("Stopped hosting on Crossway.")
+        hooks.notify("Stopped hosting on Strand.")
         changed()
     }
 
@@ -199,13 +199,13 @@ class SessionController(
         val bridge = JoinBridge(hostPuid, socket)
         bridge.start()
         joinBridge = bridge
-        hooks.notify("Joining ${hostName.ifBlank { "host" }} over Crossway...")
+        hooks.notify("Joining ${hostName.ifBlank { "host" }} over Strand...")
         hooks.connectToLocal(bridge.port)
     }
 
     fun invite(username: String) {
         if (hostState == null) {
-            hooks.notify("Host your world on Crossway before inviting.")
+            hooks.notify("Host your world on Strand before inviting.")
             return
         }
         ensureLogin().whenComplete { login, error ->
@@ -219,7 +219,7 @@ class SessionController(
                     when (e.error) {
                         "blocked" -> hooks.notify("$username has invites blocked. Share your code instead: $code")
                         "not_hosting" -> hooks.notify("Host your world before inviting.")
-                        "user_not_found" -> hooks.notify("No Crossway player named $username. They must join Crossway once first.")
+                        "user_not_found" -> hooks.notify("No Strand player named $username. They must join Strand once first.")
                         else -> hooks.notify("Could not invite $username: ${e.error}")
                     }
                 } catch (e: Exception) {
