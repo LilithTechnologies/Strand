@@ -17,7 +17,17 @@ import re.lilith.strand.backend.model.SendInviteResponse
 import re.lilith.strand.backend.model.SessionTokenRequest
 import re.lilith.strand.backend.model.SessionTokenResponse
 import re.lilith.strand.backend.model.SettingsRequest
+import re.lilith.strand.backend.model.VoiceKickRequest
+import re.lilith.strand.backend.model.VoiceMuteRequest
+import re.lilith.strand.backend.model.VoiceMembersEntry
+import re.lilith.strand.backend.model.VoiceMembersRequest
+import re.lilith.strand.backend.model.VoiceMembersResponse
+import re.lilith.strand.backend.model.VoiceSettingsRequest
+import re.lilith.strand.backend.model.VoiceSettingsResponse
+import re.lilith.strand.backend.model.VoiceTokenRequest
+import re.lilith.strand.backend.model.VoiceTokenResponse
 import re.lilith.strand.backend.security.requireUser
+import re.lilith.strand.backend.service.VoiceException
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -237,6 +247,110 @@ fun Route.strandRoutes(services: AppServices) {
             ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("bad_id"))
         if (services.invites.decline(userId, id)) call.respond(HttpStatusCode.NoContent)
         else call.respond(HttpStatusCode.NotFound, ErrorResponse("invite_not_found"))
+    }
+
+    post("/voice/token") {
+        val userId = call.requireUser(services.tokens) ?: return@post
+        val voice = services.voice
+            ?: return@post call.respond(HttpStatusCode.ServiceUnavailable, ErrorResponse("voice_unavailable"))
+        val req = call.receive<VoiceTokenRequest>()
+        val session = services.sessions.voiceSessionBySocket(req.socketName.trim())
+            ?: return@post call.respond(HttpStatusCode.NotFound, ErrorResponse("session_not_found"))
+        val isHost = session.hostId == userId
+        if (!isHost && !services.sessions.isMember(session.id, userId)) {
+            return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("not_a_member"))
+        }
+        val puid = services.users.productUserId(userId)
+            ?: return@post call.respond(HttpStatusCode.Conflict, ErrorResponse("puid_missing"))
+        val token = try {
+            voice.createRoomToken(session.voiceRoomId, puid, hardMuted = !session.voiceEnabled)
+        } catch (e: VoiceException) {
+            return@post call.respond(HttpStatusCode.BadGateway, ErrorResponse("rtc_error", e.message))
+        }
+        call.respond(
+            VoiceTokenResponse(
+                roomId = session.voiceRoomId,
+                clientBaseUrl = token.clientBaseUrl,
+                token = token.token,
+                proxNear = session.proxNear,
+                proxMax = session.proxMax,
+                voiceEnabled = session.voiceEnabled,
+                host = isHost,
+                hostProductUserId = session.hostProductUserId,
+            ),
+        )
+    }
+
+    post("/voice/members") {
+        val userId = call.requireUser(services.tokens) ?: return@post
+        val req = call.receive<VoiceMembersRequest>()
+        val session = services.sessions.voiceSessionBySocket(req.socketName.trim())
+            ?: return@post call.respond(HttpStatusCode.NotFound, ErrorResponse("session_not_found"))
+        if (session.hostId != userId && !services.sessions.isMember(session.id, userId)) {
+            return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("not_a_member"))
+        }
+        val members = services.sessions.members(session.id)
+            .mapNotNull { m -> m.productUserId?.let { VoiceMembersEntry(it, m.userId.toString(), m.username) } }
+        call.respond(VoiceMembersResponse(members))
+    }
+
+    post("/voice/kick") {
+        val userId = call.requireUser(services.tokens) ?: return@post
+        val voice = services.voice
+            ?: return@post call.respond(HttpStatusCode.ServiceUnavailable, ErrorResponse("voice_unavailable"))
+        val req = call.receive<VoiceKickRequest>()
+        val session = services.sessions.voiceSessionBySocket(req.socketName.trim())
+            ?: return@post call.respond(HttpStatusCode.NotFound, ErrorResponse("session_not_found"))
+        if (session.hostId != userId) {
+            return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("not_host"))
+        }
+        try {
+            voice.kick(session.voiceRoomId, req.targetProductUserId.trim())
+        } catch (e: VoiceException) {
+            return@post call.respond(HttpStatusCode.BadGateway, ErrorResponse("rtc_error", e.message))
+        }
+        services.sessions.removeMemberByPuid(session.id, req.targetProductUserId.trim())
+        services.sessions.audit(userId, null, session.id, "VOICE_KICK", req.targetProductUserId.trim())
+        call.respond(HttpStatusCode.NoContent)
+    }
+
+    post("/voice/mute") {
+        val userId = call.requireUser(services.tokens) ?: return@post
+        val voice = services.voice
+            ?: return@post call.respond(HttpStatusCode.ServiceUnavailable, ErrorResponse("voice_unavailable"))
+        val req = call.receive<VoiceMuteRequest>()
+        val session = services.sessions.voiceSessionBySocket(req.socketName.trim())
+            ?: return@post call.respond(HttpStatusCode.NotFound, ErrorResponse("session_not_found"))
+        if (session.hostId != userId) {
+            return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("not_host"))
+        }
+        try {
+            voice.setHardMute(session.voiceRoomId, req.targetProductUserId.trim(), req.muted)
+        } catch (e: VoiceException) {
+            return@post call.respond(HttpStatusCode.BadGateway, ErrorResponse("rtc_error", e.message))
+        }
+        services.sessions.audit(userId, null, session.id, if (req.muted) "VOICE_MUTE" else "VOICE_UNMUTE", req.targetProductUserId.trim())
+        call.respond(HttpStatusCode.NoContent)
+    }
+
+    post("/voice/settings") {
+        val userId = call.requireUser(services.tokens) ?: return@post
+        val req = call.receive<VoiceSettingsRequest>()
+        val session = services.sessions.voiceSessionBySocket(req.socketName.trim())
+            ?: return@post call.respond(HttpStatusCode.NotFound, ErrorResponse("session_not_found"))
+        if (session.hostId != userId) {
+            return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("not_host"))
+        }
+        val updated = services.sessions.setVoiceConfig(userId, session.id, req.voiceEnabled, req.proxNear, req.proxMax)
+            ?: return@post call.respond(HttpStatusCode.Forbidden, ErrorResponse("not_host"))
+        val voice = services.voice
+        if (req.voiceEnabled != null && voice != null) {
+            val mute = !req.voiceEnabled
+            services.sessions.members(session.id).forEach { m ->
+                m.productUserId?.let { runCatching { voice.setHardMute(updated.voiceRoomId, it, mute) } }
+            }
+        }
+        call.respond(VoiceSettingsResponse(updated.voiceEnabled, updated.proxNear, updated.proxMax))
     }
 }
 

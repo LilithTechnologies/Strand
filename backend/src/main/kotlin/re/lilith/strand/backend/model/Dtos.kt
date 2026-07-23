@@ -97,3 +97,44 @@ data class AcceptInviteResponse(val hostUsername: String, val hostProductUserId:
 
 @Serializable
 data class ErrorResponse(val error: String, val message: String? = null)
+
+@Serializable
+data class VoiceTokenRequest(val socketName: String)
+
+@Serializable
+data class VoiceTokenResponse(
+    val roomId: String,
+    val clientBaseUrl: String,
+    val token: String,
+    val proxNear: Int,
+    val proxMax: Int,
+    val voiceEnabled: Boolean,
+    val host: Boolean,
+    val hostProductUserId: String,
+)
+
+@Serializable
+data class VoiceMembersRequest(val socketName: String)
+
+@Serializable
+data class VoiceMembersEntry(val productUserId: String, val mcUuid: String, val username: String)
+
+@Serializable
+data class VoiceMembersResponse(val members: List<VoiceMembersEntry>)
+
+@Serializable
+data class VoiceKickRequest(val socketName: String, val targetProductUserId: String)
+
+@Serializable
+data class VoiceMuteRequest(val socketName: String, val targetProductUserId: String, val muted: Boolean)
+
+@Serializable
+data class VoiceSettingsRequest(
+    val socketName: String,
+    val voiceEnabled: Boolean? = null,
+    val proxNear: Int? = null,
+    val proxMax: Int? = null,
+)
+
+@Serializable
+data class VoiceSettingsResponse(val voiceEnabled: Boolean, val proxNear: Int, val proxMax: Int)

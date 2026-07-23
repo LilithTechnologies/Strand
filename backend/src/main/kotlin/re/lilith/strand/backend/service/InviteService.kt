@@ -1,11 +1,13 @@
 package re.lilith.strand.backend.service
 
 import re.lilith.strand.backend.db.Invites
+import re.lilith.strand.backend.db.SessionMembers
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -60,6 +62,13 @@ class InviteService {
             .firstOrNull() ?: return@transaction null
         if (row[Invites.expiresAt].isBefore(now())) return@transaction null
         Invites.update({ Invites.id eq inviteId }) { it[status] = "ACCEPTED" }
+        row[Invites.sessionId]?.let { sessionId ->
+            SessionMembers.insertIgnore {
+                it[SessionMembers.sessionId] = sessionId
+                it[SessionMembers.userId] = toId
+                it[joinedAt] = now()
+            }
+        }
         AcceptedInvite(row[Invites.fromName], row[Invites.fromPuid], row[Invites.socketName])
     }
 

@@ -31,6 +31,11 @@ services:
       STRAND_DB_PASSWORD: ${STRAND_DB_PASSWORD}
       STRAND_PORT: "8080"
       STRAND_SEED: ${STRAND_SEED:-false}
+      STRAND_EOS_CLIENT_ID: ${STRAND_EOS_CLIENT_ID}
+      STRAND_EOS_CLIENT_SECRET: ${STRAND_EOS_CLIENT_SECRET}
+      STRAND_EOS_DEPLOYMENT_ID: ${STRAND_EOS_DEPLOYMENT_ID}
+      STRAND_EOS_AUTH_BASE: ${STRAND_EOS_AUTH_BASE:-https://api.epicgames.dev}
+      STRAND_EOS_RTC_BASE: ${STRAND_EOS_RTC_BASE:-https://api.epicgames.dev}
     expose:
       - "8080"
     networks:

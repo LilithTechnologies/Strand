@@ -110,6 +110,26 @@ class BackendClient(
     fun declineInvite(bearer: String, inviteId: String) =
         sendUnit(base("/invites/$inviteId/decline", bearer).POST(bodyOf(emptyMap<String, String>())).build())
 
+    fun voiceToken(bearer: String, socketName: String): VoiceTokenResponse =
+        postJson("/voice/token", mapOf("socketName" to socketName), bearer)
+
+    fun voiceMembers(bearer: String, socketName: String): VoiceMembersResponse =
+        postJson("/voice/members", mapOf("socketName" to socketName), bearer)
+
+    fun voiceKick(bearer: String, socketName: String, targetProductUserId: String) =
+        sendUnit(base("/voice/kick", bearer).POST(bodyOf(mapOf("socketName" to socketName, "targetProductUserId" to targetProductUserId))).build())
+
+    fun voiceMute(bearer: String, socketName: String, targetProductUserId: String, muted: Boolean) =
+        sendUnit(base("/voice/mute", bearer).POST(bodyOf(mapOf("socketName" to socketName, "targetProductUserId" to targetProductUserId, "muted" to muted))).build())
+
+    fun voiceSettings(bearer: String, socketName: String, voiceEnabled: Boolean?, proxNear: Int?, proxMax: Int?): VoiceSettingsResponse =
+        postJson("/voice/settings", buildMap {
+            put("socketName", socketName)
+            voiceEnabled?.let { put("voiceEnabled", it) }
+            proxNear?.let { put("proxNear", it) }
+            proxMax?.let { put("proxMax", it) }
+        }, bearer)
+
     private inline fun <reified T> getJson(path: String, bearer: String?): T =
         json.decodeFromString(send(base(path, bearer).GET().build()))
 

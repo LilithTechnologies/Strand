@@ -1,6 +1,7 @@
 package re.lilith.strand.client.gui
 
 import re.lilith.strand.session.ConnState
+import re.lilith.strand.voice.VoiceManager
 import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.components.toasts.SystemToast
 import net.minecraft.client.gui.screens.Screen
@@ -21,6 +22,8 @@ class StrandHubScreen(parent: Screen?) : StrandScreen(Component.literal("Strand"
         label(cx, y, hostingLine())
         y += 11
         label(cx, y, Component.literal("Invites: ${if (c?.invitesBlocked() == true) "blocked" else "allowed"}").withStyle(ChatFormatting.GRAY))
+        y += 11
+        label(cx, y, voiceLine())
         y += 18
 
         val bw = 204
@@ -56,6 +59,13 @@ class StrandHubScreen(parent: Screen?) : StrandScreen(Component.literal("Strand"
             y += gap + 5
         }
 
+        if (c != null && c.isInVoice) {
+            button(cx, y, bw, Component.literal("Voice chat (${VoiceManager.participants().size + 1})")) {
+                minecraft.setScreenAndShow(StrandVoiceScreen(this))
+            }
+            y += gap
+        }
+
         button(cx, y, bw, Component.literal("Settings")) { minecraft.setScreenAndShow(StrandSettingsScreen(this)) }
         y += gap
 
@@ -78,6 +88,15 @@ class StrandHubScreen(parent: Screen?) : StrandScreen(Component.literal("Strand"
             Component.literal("Hosting  |  code ${c.currentCode()}").withStyle(ChatFormatting.GREEN)
         } else {
             Component.literal("Not hosting").withStyle(ChatFormatting.GRAY)
+        }
+    }
+
+    private fun voiceLine(): Component {
+        val c = controller
+        return if (c != null && c.isInVoice) {
+            Component.literal("Voice: connected").withStyle(ChatFormatting.GREEN)
+        } else {
+            Component.literal("Voice: off").withStyle(ChatFormatting.GRAY)
         }
     }
 

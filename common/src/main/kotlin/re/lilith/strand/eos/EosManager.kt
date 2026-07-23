@@ -7,6 +7,8 @@ import gg.sona.eos.EosPlatform
 import gg.sona.eos.EosPlatformFlags
 import gg.sona.eos.EosPlatformOptions
 import gg.sona.eos.EosResult
+import gg.sona.eos.EosRtcOptions
+import gg.sona.eos.rtc.EosRtc
 import gg.sona.eos.common.ProductUserId
 import gg.sona.eos.logging.EosLogCategory
 import gg.sona.eos.logging.EosLogLevel
@@ -29,7 +31,12 @@ object EosManager {
     val platform: EosPlatform
         get() = current ?: error("EOS SDK has not been initialized yet")
 
+    val rtc: EosRtc get() = platform.rtc
+
     val isInitialized: Boolean get() = current != null
+
+    @Volatile
+    var voiceDeviceFailed: Boolean = false
 
     @Volatile
     var localUser: ProductUserId = ProductUserId.Invalid
@@ -94,6 +101,7 @@ object EosManager {
             clientCredentials = EosClientCredentials.of(EosConstants.CLIENT_ID, EosConstants.CLIENT_SECRET),
         ).apply {
             flags = EosPlatformFlags.DisableOverlay or EosPlatformFlags.DisableSocialOverlay
+            rtcOptions = EosRtcOptions()
         }
         return runCatching { Eos.createPlatform(options) }
             .onFailure { logger.error("Could not create the EOS platform", it) }

@@ -8,6 +8,7 @@ import re.lilith.strand.backend.service.ChallengeService
 import re.lilith.strand.backend.service.InviteService
 import re.lilith.strand.backend.service.SessionService
 import re.lilith.strand.backend.service.UserService
+import re.lilith.strand.backend.service.VoiceService
 
 class AppServices(
     val config: Config,
@@ -19,4 +20,5 @@ class AppServices(
     val sessions: SessionService,
     val invites: InviteService,
     val mojang: MojangClient,
+    val voice: VoiceService?,
 )

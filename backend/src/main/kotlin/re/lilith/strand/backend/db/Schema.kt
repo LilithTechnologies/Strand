@@ -40,8 +40,20 @@ object Sessions : UUIDTable("sessions") {
     val socketName = varchar("socket_name", 32)
     val inviteCode = varchar("invite_code", 12).uniqueIndex()
     val active = bool("active").default(true)
+    val voiceRoomId = varchar("voice_room_id", 64).default("")
+    val voiceEnabled = bool("voice_enabled").default(true)
+    val proxNear = integer("prox_near").default(8)
+    val proxMax = integer("prox_max").default(48)
     val createdAt = datetime("created_at")
     val expiresAt = datetime("expires_at")
+}
+
+object SessionMembers : Table("session_members") {
+    val sessionId = uuid("session_id").index()
+    val userId = uuid("user_id")
+    val joinedAt = datetime("joined_at")
+
+    override val primaryKey = PrimaryKey(sessionId, userId)
 }
 
 object Invites : UUIDTable("invites") {

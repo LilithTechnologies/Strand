@@ -21,7 +21,7 @@ object Db {
         val database = Database.connect(HikariDataSource(hikari))
         transaction(database) {
             SchemaUtils.createMissingTablesAndColumns(
-                Users, AuthChallenges, AuthCodes, Sessions, Invites, InviteAudit, SigningKeys,
+                Users, AuthChallenges, AuthCodes, Sessions, SessionMembers, Invites, InviteAudit, SigningKeys,
             )
         }
         return database

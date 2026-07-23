@@ -10,6 +10,7 @@ import re.lilith.strand.backend.service.ChallengeService
 import re.lilith.strand.backend.service.InviteService
 import re.lilith.strand.backend.service.SessionService
 import re.lilith.strand.backend.service.UserService
+import re.lilith.strand.backend.service.VoiceService
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -40,6 +41,7 @@ fun main() {
         sessions = SessionService(config),
         invites = InviteService(),
         mojang = MojangClient(),
+        voice = config.eos?.let { VoiceService(it) },
     )
     Seeder.run(config, services)
     embeddedServer(Netty, port = config.port, host = "0.0.0.0") {

@@ -17,7 +17,16 @@ data class Config(
     val dbPassword: String,
     val dbPoolSize: Int,
     val seed: Boolean,
+    val eos: EosServerConfig?,
 ) {
+    data class EosServerConfig(
+        val clientId: String,
+        val clientSecret: String,
+        val deploymentId: String,
+        val authBase: String,
+        val rtcBase: String,
+    )
+
     companion object {
         fun fromEnv(env: Map<String, String> = System.getenv()): Config {
             fun req(key: String): String =
@@ -26,6 +35,19 @@ data class Config(
             fun opt(key: String, default: String): String = env[key] ?: default
 
             val issuer = req("STRAND_ISSUER").trimEnd('/')
+
+            val eosClientId = env["STRAND_EOS_CLIENT_ID"]
+            val eosClientSecret = env["STRAND_EOS_CLIENT_SECRET"]
+            val eosDeploymentId = env["STRAND_EOS_DEPLOYMENT_ID"]
+            val eos = if (!eosClientId.isNullOrBlank() && !eosClientSecret.isNullOrBlank() && !eosDeploymentId.isNullOrBlank()) {
+                EosServerConfig(
+                    clientId = eosClientId,
+                    clientSecret = eosClientSecret,
+                    deploymentId = eosDeploymentId,
+                    authBase = opt("STRAND_EOS_AUTH_BASE", "https://api.epicgames.dev").trimEnd('/'),
+                    rtcBase = opt("STRAND_EOS_RTC_BASE", "https://api.epicgames.dev").trimEnd('/'),
+                )
+            } else null
 
             return Config(
                 port = opt("STRAND_PORT", "8080").toInt(),
@@ -42,6 +64,7 @@ data class Config(
                 dbPassword = req("STRAND_DB_PASSWORD"),
                 dbPoolSize = opt("STRAND_DB_POOL_SIZE", "10").toInt(),
                 seed = opt("STRAND_SEED", "false").toBoolean(),
+                eos = eos,
             )
         }
     }

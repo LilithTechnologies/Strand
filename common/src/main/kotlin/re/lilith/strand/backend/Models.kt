@@ -27,3 +27,24 @@ data class PendingInviteDto(val id: String, val fromName: String, val fromProduc
 data class PendingInvitesResponse(val invites: List<PendingInviteDto> = emptyList())
 @Serializable
 data class AcceptInviteResponse(val hostUsername: String, val hostProductUserId: String, val socketName: String)
+
+@Serializable
+data class VoiceTokenResponse(
+    val roomId: String,
+    val clientBaseUrl: String,
+    val token: String,
+    val proxNear: Int,
+    val proxMax: Int,
+    val voiceEnabled: Boolean,
+    val host: Boolean,
+    val hostProductUserId: String,
+)
+
+@Serializable
+data class VoiceMemberEntry(val productUserId: String, val mcUuid: String, val username: String)
+
+@Serializable
+data class VoiceMembersResponse(val members: List<VoiceMemberEntry> = emptyList())
+
+@Serializable
+data class VoiceSettingsResponse(val voiceEnabled: Boolean, val proxNear: Int, val proxMax: Int)
