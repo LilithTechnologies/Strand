@@ -16,29 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package re.lilith.strand.client
+package re.lilith.strand.platform.neoforge
 
 import re.lilith.strand.StrandConfig
 import re.lilith.strand.StrandState
 import re.lilith.strand.backend.BackendClient
+import re.lilith.strand.client.StrandClientHooks
 import re.lilith.strand.eos.EosManager
 import re.lilith.strand.session.SessionController
 import gg.sona.eos.Eos
 import gg.sona.eos.EosNatives
-import net.fabricmc.api.ClientModInitializer
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
+import net.neoforged.bus.api.IEventBus
+import net.neoforged.fml.ModContainer
+import net.neoforged.fml.common.Mod
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
+import net.neoforged.fml.loading.FMLPaths
+import net.neoforged.neoforge.client.event.ClientTickEvent
+import net.neoforged.neoforge.common.NeoForge
 import org.slf4j.LoggerFactory
 
-class StrandClient : ClientModInitializer {
+@Mod("strand")
+class StrandNeoForgeMod(modBus: IEventBus, container: ModContainer) {
 
     private val logger = LoggerFactory.getLogger("strand")
 
-    override fun onInitializeClient() {
+    init {
+        modBus.addListener(::onClientSetup)
+    }
+
+    private fun onClientSetup(event: FMLClientSetupEvent) {
         EosNatives.baseUrl = "https://eos-cdn.lilith.re"
         logger.info("Setting up EOS SDK...")
         logger.info("SDK version: ${Eos.version}")
 
-        val config = StrandConfig.load()
+        val config = StrandConfig.load(FMLPaths.CONFIGDIR.get())
         StrandState.config = config
 
         val backend = BackendClient("https://strand.lilith.re", config.oidcClientId, config.oidcRedirectUri)
@@ -48,16 +59,21 @@ class StrandClient : ClientModInitializer {
 
         EosManager.init()
 
-        StrandCommands.register(controller)
-        StrandScreenButtons.register()
+        StrandNeoForgeCommands.register(controller)
+        StrandNeoForgeScreenButtons.register()
 
-        ClientLifecycleEvents.CLIENT_STARTED.register {
-            controller.ensureLogin()
+        var loggedIn = false
+        NeoForge.EVENT_BUS.addListener { _: ClientTickEvent.Post ->
+            if (!loggedIn) {
+                loggedIn = true
+                controller.ensureLogin()
+            }
         }
-        ClientLifecycleEvents.CLIENT_STOPPING.register {
+
+        Runtime.getRuntime().addShutdownHook(Thread {
             controller.shutdown()
             EosManager.shutdown()
-        }
+        })
 
         logger.info("Strand client initialized")
     }

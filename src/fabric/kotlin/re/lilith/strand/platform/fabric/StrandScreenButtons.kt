@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package re.lilith.strand.client
+package re.lilith.strand.platform.fabric
 
 import re.lilith.strand.client.gui.StrandHubScreen
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents

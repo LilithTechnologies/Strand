@@ -2,25 +2,15 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.4.10"
-    kotlin("plugin.serialization") version "2.4.10"
-    id("net.fabricmc.fabric-loom") version "1.17.16"
-    id("maven-publish")
-    id("dev.yumi.gradle.licenser") version "4.0.+"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("net.fabricmc.fabric-loom")
+    id("dev.yumi.gradle.licenser")
+    `maven-publish`
 }
 
 version = project.property("mod_version") as String
 group = project.property("maven_group") as String
-
-base {
-    archivesName.set(project.property("archives_base_name") as String)
-}
-
-val targetJavaVersion = 25
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    withSourcesJar()
-}
 
 repositories {
     mavenLocal()
@@ -29,8 +19,22 @@ repositories {
     mavenCentral()
 }
 
+base {
+    archivesName.set(project.property("archives_base_name") as String)
+}
+
+sourceSets.main {
+    kotlin.srcDir(rootProject.file("src/fabric/kotlin"))
+}
+
+val targetJavaVersion = 25
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    withSourcesJar()
+}
+
 dependencies {
-    minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
+    minecraft("com.mojang:minecraft:${sc.current.version}")
     implementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
     implementation("net.fabricmc:fabric-language-kotlin:${project.property("kotlin_loader_version")}")
     implementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
@@ -38,18 +42,20 @@ dependencies {
     runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
     implementation(include("gg.sona:eos:1.1.0")!!)
+
+    implementation(project(":common"))
 }
 
 tasks.processResources {
     inputs.property("version", project.version)
-    inputs.property("minecraft_version", project.property("minecraft_version"))
+    inputs.property("minecraft_version", sc.current.version)
     inputs.property("loader_version", project.property("loader_version"))
     filteringCharset = "UTF-8"
 
     filesMatching("fabric.mod.json") {
         expand(
             "version" to project.version,
-            "minecraft_version" to project.property("minecraft_version") as String,
+            "minecraft_version" to sc.current.version,
             "loader_version" to project.property("loader_version") as String,
             "kotlin_loader_version" to project.property("kotlin_loader_version") as String
         )
@@ -66,23 +72,32 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 tasks.jar {
-    from("LICENSE.md") {
+    from(rootProject.file("LICENSE.md")) {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
-    from("NOTICE.md") {
+    from(rootProject.file("NOTICE.md")) {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
-    from("PRIVACY_POLICY.md") {
+    from(rootProject.file("PRIVACY_POLICY.md")) {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
 }
 
 license {
-    rule(file("codeformat/HEADER"))
+    rule(rootProject.file("codeformat/HEADER"))
 
     include("**/*.java")
     include("**/*.kt")
     exclude("**/*.properties")
+}
+
+loom {
+    runConfigs.all {
+        preferGradleTask = true
+        generateRunConfig = true
+        runDirectory = rootProject.file("run")
+        jvmArguments.add("-Ddevauth.enabled=true")
+    }
 }
 
 publishing {

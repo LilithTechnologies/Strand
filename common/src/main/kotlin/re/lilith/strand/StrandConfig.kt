@@ -20,8 +20,8 @@ package re.lilith.strand
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import net.fabricmc.loader.api.FabricLoader
 import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.io.path.exists
 
 @Serializable
@@ -34,8 +34,8 @@ data class StrandConfig(
     companion object {
         private val json = Json { prettyPrint = true; ignoreUnknownKeys = true; encodeDefaults = true }
 
-        fun load(): StrandConfig {
-            val path = FabricLoader.getInstance().configDir.resolve("strand.json")
+        fun load(configDir: Path): StrandConfig {
+            val path = configDir.resolve("strand.json")
             if (!path.exists()) {
                 val default = StrandConfig()
                 runCatching { Files.writeString(path, json.encodeToString(default)) }

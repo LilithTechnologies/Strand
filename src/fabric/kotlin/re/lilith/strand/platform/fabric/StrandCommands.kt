@@ -16,26 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package re.lilith.strand.client
+package re.lilith.strand.platform.fabric
 
 import com.mojang.brigadier.arguments.StringArgumentType
+import re.lilith.strand.client.StrandChat.PREFIX
 import re.lilith.strand.client.gui.StrandHubScreen
 import re.lilith.strand.session.SessionController
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
-import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextColor
 
 object StrandCommands {
-    val PREFIX = Component.literal("")
-        .append(Component.literal("[").withStyle(ChatFormatting.GRAY))
-        .append(Component.literal("Strand").withStyle(ChatFormatting.AQUA))
-        .append(Component.literal("]").withStyle(ChatFormatting.GRAY))
-        .withStyle(ChatFormatting.WHITE)
-
     fun register(controller: SessionController) {
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             dispatcher.register(

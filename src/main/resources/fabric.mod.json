@@ -33,7 +33,7 @@
   ],
   "entrypoints": {
     "client": [
-      "re.lilith.strand.client.StrandClient"
+      "re.lilith.strand.platform.fabric.StrandClient"
     ]
   },
 

@@ -19,7 +19,7 @@
 package re.lilith.strand.client
 
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService
-import re.lilith.strand.client.StrandCommands.PREFIX
+import re.lilith.strand.client.StrandChat.PREFIX
 import re.lilith.strand.client.gui.StrandMultiplayerOptionsScreen
 import re.lilith.strand.session.ClientHooks
 import re.lilith.strand.session.Profile

@@ -1,0 +1,26 @@
+license="AGPL-3.0"
+
+[[mods]]
+modId="strand"
+version="${version}"
+displayName="Strand"
+description='''
+Open your Minecraft world to anyone, anywhere.
+'''
+
+[[mixins]]
+config="strand.mixins.json"
+
+[[dependencies.strand]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.strand]]
+    modId="minecraft"
+    type="required"
+    versionRange="[${minecraft_version},)"
+    ordering="NONE"
+    side="CLIENT"
