@@ -23,7 +23,7 @@
     "homepage": "https://github.com/LilithTechnologies/Strand"
   },
 
-  "license": "AGPL-3.0",
+  "license": "PolyForm-Shield-1.0.0",
   "icon": "assets/strand/icon.png",
 
   "environment": "client",

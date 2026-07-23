@@ -15,6 +15,7 @@ repositories {
     mavenLocal()
     maven("https://maven.cloverclient.com/releases")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    maven("https://repo.nyon.dev/releases")
     mavenCentral()
 }
 
@@ -56,10 +57,12 @@ neoForge {
 dependencies {
     implementation("gg.sona:eos:1.1.1")
     jarJar("gg.sona:eos:1.1.1")
+    implementation(project(":common"))
+    jarJar(project(":common"))
 
     runtimeOnly("me.djtheredstoner:DevAuth-neoforge:1.2.2")
 
-    implementation(project(":common"))
+    implementation("dev.nyon:KotlinLangForge:2.12.2-k2.4.10-3.1+neoforge")
 }
 
 tasks.processResources {
@@ -68,7 +71,9 @@ tasks.processResources {
     inputs.property("neo_version", project.property("neo_version"))
     filteringCharset = "UTF-8"
 
-    filesMatching("**/neoforge.mods.toml") {
+    exclude("fabric.mod.json")
+
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand(
             "version" to project.version,
             "minecraft_version" to sc.current.version,

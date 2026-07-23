@@ -41,8 +41,7 @@ dependencies {
     runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
     implementation(include("gg.sona:eos:1.1.1")!!)
-
-    implementation(project(":common"))
+    implementation(include(project(":common"))!!)
 }
 
 tasks.processResources {
@@ -50,6 +49,8 @@ tasks.processResources {
     inputs.property("minecraft_version", sc.current.version)
     inputs.property("loader_version", project.property("loader_version"))
     filteringCharset = "UTF-8"
+
+    exclude("META-INF/neoforge.mods.toml")
 
     filesMatching("fabric.mod.json") {
         expand(

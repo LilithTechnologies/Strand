@@ -35,7 +35,7 @@ This is not the full Privacy Policy but a summary of it. Please read the full [P
 
 ## License
 
-Strand, including its backend, is licensed under Polyform Shield 1.0.0. See [LICENSE.md](LICENSE.md) for the full license text.
+Strand, including its backend, is licensed under Polyform Shield 1.0.0. See [LICENSE.md](LICENSE.md) for the full license text. Use of the bundled EOS SDK components is additionally governed by our [EULA](EULA.md), by downloading and using Strand, you agree to this EULA.
 
 ### Epic Online Services (EOS) SDK
 
