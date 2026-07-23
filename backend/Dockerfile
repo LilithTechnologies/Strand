@@ -1,7 +1,6 @@
 FROM gradle:8.14.3-jdk21 AS build
 WORKDIR /app
 COPY backend/settings.gradle.kts backend/build.gradle.kts ./
-COPY codeformat /codeformat
 COPY backend/src ./src
 RUN gradle --no-daemon installDist
 
